@@ -45,33 +45,35 @@ const options = {
 
 /**
  * Create a POST-Request to the anilist api.
- * returns null if the params are invalid or the response got errors.
+ * throws an error if the params are invalid or the response got errors.
  * else return a list of Items
  * @param username string
  * @param type ListTypes
  */
 export default async function getList(username: string = '', type: ListTypes = 'ANIME'): Promise<Array<ListInterface> | null> {
-  let result = null;
+  let result = [];
   const areParamsValid = username && type;
-  if (areParamsValid) {
-    const variables = { username, type };
-    options.body = JSON.stringify({ query, variables });
 
-    try {
-      const response = await Fetch(APIUrl, options);
-      const { data, errors } = await response.json();
-
-      const hasRequestErrors = errors && errors.length > 0;
-      if (hasRequestErrors) {
-        const errorString = errors.map((err: RequestErrorInterface) => `${err.message} \\n`);
-        throw errorString;
-      }
-      const { MediaListCollection: { lists } } = data;
-      result = lists;
-    } catch (error) {
-      console.error(error);
-    }
+  if (!areParamsValid) {
+    throw new Error('Invalid Arguments');
   }
 
+  const variables = { username, type };
+  options.body = JSON.stringify({ query, variables });
+
+  try {
+    const response = await Fetch(APIUrl, options);
+    const { data, errors } = await response.json();
+
+    const hasRequestErrors = errors && errors.length > 0;
+    if (hasRequestErrors) {
+      const errorString = errors.map((err: RequestErrorInterface) => `${err.message} \\n`);
+      throw errorString;
+    }
+    const { MediaListCollection: { lists } } = data;
+    result = lists;
+  } catch (error) {
+    throw new Error(error);
+  }
   return result;
 }

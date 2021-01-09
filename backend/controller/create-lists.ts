@@ -13,11 +13,15 @@ export default async function createList(req: Request, res: Response) {
   // todo errorhandling
   const responsePayload = { err: [], downloadPath: '' };
   if (areParamsValid) {
-    const data = await GetList(username, listInUpperCase);
-    if (data) {
-      const fileName = FileWriter(data, listInUpperCase, username);
-      responsePayload.downloadPath = `/download-list/list/${list.toLowerCase()}/file/${fileName}`;
-      status = 200;
+    try {
+      const data = await GetList(username, listInUpperCase);
+      if (data) {
+        const fileName = FileWriter(data, listInUpperCase, username);
+        responsePayload.downloadPath = `/download-list/list/${list.toLowerCase()}/file/${fileName}`;
+        status = 200;
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
   res.status(status).send(responsePayload);
